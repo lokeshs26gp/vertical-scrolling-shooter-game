@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cadc7be338ff145058a40ba93853ff8f, type: 3}
+  m_Name: ResourcesDataSet
+  m_EditorClassIdentifier: 
+  Managers:
+    ResourceManagerPath: Managers/ResourceManager
+    InputManagerPath: Managers/InputManager
+    UIManagerPath: Managers/UIManager
+    GameLoadManagerPath: Managers/GameLoadManager
+    JobSystemManagerPath: Prefabs/JobSystemsManager
+  gamePrefabs:
+    GameWorldPath: Prefabs/GameWorld
+    playerPrefabPath: Prefabs/Player
+    bulletPrefabPath: Prefabs/Bullet
+    opponentPrefabPath: Prefabs/Opponent
+    backGroundPrefabPath: Prefabs/GameBackGround
+    backGroundCompPrefabPath: Prefabs/GameBGComponent
+    GameSpawnFactoryPrefabPath: Prefabs/GameSpawnFactory
+    GamePoolPrefabPath: Prefabs/GamePoolManager
+    GameLevelLoaderPath: Prefabs/GameLevelLoader
+    GameSessionManagerPath: Prefabs/GameSessionManager
+  BackGroundList:
+  - BgType: 0
+    spritePath: Sprites/seaBG
+  LevelDesignDataList:
+  - {fileID: 11400000, guid: 7080c2b64d0dc8e498be678e72d7d38f, type: 2}
+  - {fileID: 11400000, guid: bc9fdcf63ca018c4ca323cec289530a4, type: 2}
+  - {fileID: 11400000, guid: 85c826c2e179e6f47b6432919a71aa8d, type: 2}
