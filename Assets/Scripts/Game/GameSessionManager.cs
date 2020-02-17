@@ -43,6 +43,11 @@ public class GameSessionData
         
     }
 
+    public void ResetPlayerHealth()
+    {
+        playerHealth = playerMaxHealth;
+    }
+
     public bool CheckGameOver()
     {
         return lifes <= 0;
@@ -101,6 +106,7 @@ public class GameSessionManager : MonoBehaviour, IGameSystem
                 break;
             case PlayerActivity.Life:
                 sessionData.lifes -= change;
+               
                  break;
             case PlayerActivity.KillCount:
                 sessionData.killCount += change;
@@ -133,8 +139,11 @@ public class GameSessionManager : MonoBehaviour, IGameSystem
         }
         else
         {
-            if(activity == PlayerActivity.Life)
+            if (activity == PlayerActivity.Life)
+            {
                 gameSessionConnector.SpawnPlayer();
+                sessionData.ResetPlayerHealth();
+            }
             gameSessionConnector.PlayerActivityChanged(activity, sessionData);
         }
     }
