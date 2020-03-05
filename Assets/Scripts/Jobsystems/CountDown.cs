@@ -6,15 +6,32 @@ namespace JobSystem
         public int key;
         public float totalTime;
         public int isCompleted;
-
-        public CountDown(int pkey, float ptotaltime)
+        public int repeat;
+        public int pause;
+        public float cacheTotalTime;
+        public CountDown(int pkey,int pRepeat, float ptotaltime,float pcacheTotalTime)
         {
             key = pkey;
             totalTime = ptotaltime;
-            isCompleted = totalTime <= 0 ? 1 : 0;
+            cacheTotalTime = pcacheTotalTime;
+            isCompleted = cacheTotalTime <= 0.0f ? 1 : 0;
+            repeat = pRepeat;
+            pause = 0;
         }
 
+        public CountDown Reset()
+        {
+            cacheTotalTime = totalTime;
+            isCompleted = cacheTotalTime <= 0 ? 1 : 0;
+            return this;
+        }
 
+        public CountDown Pause()
+        {
+            pause = 1;
+            return this;
+        }
+        
     }
 
     public class CountDownRef

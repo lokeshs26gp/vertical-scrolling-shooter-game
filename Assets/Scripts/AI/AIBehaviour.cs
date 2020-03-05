@@ -39,7 +39,7 @@ namespace Entity
             //Debug.Log("Activated!");
             gameObject.SetActive(true);
             thisEntity.GetMovement.Set(movementInfo.end, entityLevelDesign.opponentStats.MovementSpeed);
-            AIFire.Restart();
+            AIFire.Start();
         }
 
         public void Stop(bool isKill = false)

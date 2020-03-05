@@ -11,13 +11,13 @@ namespace Entity
         public void InitilizeFire(float fireFeq)
         {
             fireFequencey = fireFeq;
-            jobSystemConnector.registerCountDown(fireFequencey, FireBullet);
+           // jobSystemConnector.registerCountDown(fireFequencey, FireBullet);
         }
 
         private void FireBullet(bool done)
         {
             Shoot();
-            jobSystemConnector.registerCountDown(fireFequencey, FireBullet);
+           // jobSystemConnector.registerCountDown(fireFequencey, FireBullet);
         }
 
         public override void Reset()
@@ -26,11 +26,11 @@ namespace Entity
             jobSystemConnector.forceRemoveCountDown(FireBullet);
         }
 
-        public void Restart()
+        public void Start()
         {
             forceQuit = false;
             canShoot = true;
-            jobSystemConnector.registerCountDown(fireFequencey, FireBullet);
+            jobSystemConnector.registerRepeatCountDown(fireFequencey,true, FireBullet);
         }
 
     }

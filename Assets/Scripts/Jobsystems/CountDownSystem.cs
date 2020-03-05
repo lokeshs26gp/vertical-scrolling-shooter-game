@@ -35,7 +35,7 @@ namespace JobSystem
 
             NativeArray<CountDown> copy = new NativeArray<CountDown>(countdownDictionary.Values.ToArray(), Allocator.TempJob);
 
-            countDownjob = new CountDownjob
+             countDownjob = new CountDownjob
             {
                 dt = deltaTime,
                 countDowns = copy
@@ -55,6 +55,9 @@ namespace JobSystem
         {
             for (int i = 0; i < jobCopy.Count(); i++)
             {
+                if (!countdownDictionary.ContainsKey(jobCopy[i].key))
+                    continue;
+                
                 if (jobCopy[i].isCompleted == 0)
                 {
                     countdownDictionary[jobCopy[i].key] = jobCopy[i];
@@ -63,14 +66,25 @@ namespace JobSystem
                 {
                     CountDown removing;
 
-                    countdownDictionary.TryRemove(jobCopy[i].key, out removing);
+                    if (jobCopy[i].repeat == 0)
+                    {
+                        countdownDictionary.TryRemove(jobCopy[i].key, out removing);
 
-                    OnCompleted completed = null;
+                        OnCompleted completed = null;
 
-                    concurrentDictionaryMapper.TryRemove(removing.key, out completed);
+                        concurrentDictionaryMapper.TryRemove(removing.key, out completed);
 
+                        completed.Invoke(true);
 
-                    completed.Invoke(true);
+                        //Debug.Log("Removed Key " + jobCopy[i].key);
+
+                    }
+                    else if (jobCopy[i].repeat == 1)
+                    { 
+                        concurrentDictionaryMapper[countdownDictionary[jobCopy[i].key].key].Invoke(true);
+                        countdownDictionary[jobCopy[i].key] = jobCopy[i].Reset();
+                      
+                    }
 
                 }
 
@@ -88,98 +102,81 @@ namespace JobSystem
 
         public void AddCountDown(float ptotalTime, OnCompleted completed)
         {
-            countDownHandle.Complete();
+            int uniqueInt = completed.GetHashCode();
 
-            int uniqueInt = completed.GetHashCode();// countdownDictionary.Count() + 1;
-            
             if (concurrentDictionaryMapper.TryAdd(uniqueInt, completed))
             {
                 CountDown newCountdown = new CountDown
                 {
                     key = uniqueInt,
-                    totalTime = ptotalTime
+                    totalTime = ptotalTime,
+                    cacheTotalTime = ptotalTime,
+                    repeat = 0
                 };
                 if (countdownDictionary.TryAdd(uniqueInt, newCountdown))
                 {
-                   //Debug.Log("Added " + uniqueInt + "TotalTime = " + ptotalTime);
+                    //Debug.Log("Added " + uniqueInt + "TotalTime = " + ptotalTime);
+                }
+            }
+            else if (concurrentDictionaryMapper.ContainsKey(uniqueInt))
+            {
+               // Debug.Log("already contains key "+ uniqueInt);
+            }
+            
+        }
+        public void AddCountDown(float ptotalTime,bool pRepeat, OnCompleted completed)
+        {
+            int uniqueInt = completed.GetHashCode();// countdownDictionary.Count() + 1;
+
+            CountDown newCountdown = new CountDown
+            {
+                key = uniqueInt,
+                totalTime = ptotalTime,
+                cacheTotalTime = ptotalTime,
+                repeat = pRepeat ? 1 : 0
+            };   
+            if (countdownDictionary.TryAdd(uniqueInt, newCountdown))
+            { 
+                if(concurrentDictionaryMapper.TryAdd(uniqueInt, completed))
+                {
+                   // Debug.Log("Added " + uniqueInt + "TotalTime = " + ptotalTime);
+                }
+            }
+            else if (countdownDictionary.ContainsKey(uniqueInt))
+            {
+                if(countdownDictionary.TryUpdate(uniqueInt, newCountdown, countdownDictionary[uniqueInt]))
+                {
+                   // Debug.Log("Already existing key " + uniqueInt + " updated!");
                 }
             }
             
+
         }
 
-
-        /* public void AddCountDown(string key, float ptotalTime, System.Action<string, float> completed, bool isUpdateFrame)
-         {
-             countDownHandle.Complete();
-
-             int uniqueInt = countdownDictionary.Count() + 1;
-
-             if (concurrentDictionaryMapper.TryAdd(uniqueInt, new CountDownRef(key, completed, isUpdateFrame)))
-             {
-                 CountDown newCountdown = new CountDown
-                 {
-                     key = uniqueInt,
-                     totalTime = ptotalTime
-                 };
-                 if (countdownDictionary.TryAdd(uniqueInt, newCountdown))
-                 {
-                     Debug.Log("Added " + key + "TotalTime = " + ptotalTime);
-                 }
-             }
-         }
-         public void AddCountDown(float ptotalTime, System.Action<bool> completed)
-         {
-             countDownHandle.Complete();
-
-             int uniqueInt = countdownDictionary.Count() + 1;
-
-             if (concurrentDictionaryMapper.TryAdd(uniqueInt, new CountDownRef(completed)))
-             {
-                 CountDown newCountdown = new CountDown
-                 {
-                     key = uniqueInt,
-                     totalTime = ptotalTime
-                 };
-                 if (countdownDictionary.TryAdd(uniqueInt, newCountdown))
-                 {
-                    // Debug.Log("Added " + key + "TotalTime = " + ptotalTime);
-                 }
-             }
-         }
-
-         public void ForceRemoveCountDown(string key)
-         {
-             int jobKey = -1;
-             jobKey = concurrentDictionaryMapper.FirstOrDefault(x => x.Value.IsEqual(key)).Key;
-             if (jobKey > 0)
-             {
-                 countDownHandle.Complete();
-                 CountDown removing = countdownDictionary[jobKey];
-                 removing.totalTime = 0.0f;
-                 countdownDictionary[jobKey] = removing;
-                 Debug.Log("ForceRemoved = " + key);
-             }
-
-         }
-         */
         public void ForceRemoveCountDown(OnCompleted action)
         {
-            
-            int jobKey = -1;
-            jobKey = concurrentDictionaryMapper.FirstOrDefault(x => x.Value == action).Key;
-            if (jobKey > 0)
+
+            int jobKey = action.GetHashCode();
+            if (countdownDictionary.ContainsKey(jobKey))
             {
-                countDownHandle.Complete();
-                CountDown removing = countdownDictionary[jobKey];
-                removing.totalTime = 0.0f;
-                countdownDictionary[jobKey] = removing;
+
+                if (countdownDictionary.TryRemove(jobKey, out CountDown removed))
+                {
+                    if( concurrentDictionaryMapper.TryRemove(removed.key, out OnCompleted removedCallBack))
+                    {
+                        //Debug.Log("successfully removed =" + jobKey);
+                    }
+                }
 
             }
-            //else
-             //   Debug.LogError("ManagedError-No key present in ForceRemoveCountDown");
+           // else
+               // Debug.LogError("key " + jobKey + "doesnot exists!");
+                
+
 
         }
-        #endregion
+#endregion
 
-    }
 }
+}
+ 

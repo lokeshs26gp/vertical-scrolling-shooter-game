@@ -11,8 +11,11 @@ namespace JobSystem
         public void Execute(int index)
         {
             CountDown count = countDowns[index];
-            count.totalTime -= dt;
-            countDowns[index] = new CountDown(count.key, count.totalTime);
+            if (count.pause == 0)
+            {
+                count.cacheTotalTime -= dt;
+                countDowns[index] = new CountDown(count.key, count.repeat, count.totalTime, count.cacheTotalTime);
+            }
 
         }
 

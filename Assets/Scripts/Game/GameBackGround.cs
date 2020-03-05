@@ -67,10 +67,11 @@ public class GameBackGround : MonoBehaviour,IGameSystem,ITriggerEnterReceiver
             case GameState.Running:
                 startPosition = container.transform.position;
                 speed = gameSessionConnector.GetSessionData().levelDesignData.playerStats.MovementSpeed;
-                jobSystemConnector.registerCountDown(1.0f, SendDistanceTravelled);
+                jobSystemConnector.registerRepeatCountDown(1.0f, true,SendDistanceTravelled);
                 break;
             case GameState.GameOver:
                 speed = 0;
+                jobSystemConnector.forceRemoveCountDown(SendDistanceTravelled);
                 break;
           
         }
@@ -80,7 +81,7 @@ public class GameBackGround : MonoBehaviour,IGameSystem,ITriggerEnterReceiver
         float currentDistance = (container.transform.position - startPosition).sqrMagnitude;
         int travelled = Mathf.RoundToInt(currentDistance * 0.001f);//1/10000
         gameSessionConnector.OnPlayerActivityChange(PlayerActivity.DistanceTravel, travelled);
-        jobSystemConnector.registerCountDown(1.0f, SendDistanceTravelled);
+       
     }
     private void Update()
     {

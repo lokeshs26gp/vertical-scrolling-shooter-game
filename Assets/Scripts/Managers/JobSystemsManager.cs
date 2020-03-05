@@ -13,6 +13,7 @@ namespace JobSystem
         {
             countDownSystem = new CountDownSystem();
             jobSystemConnector.Register(RegisterCountDown);
+            jobSystemConnector.Register(RegisterRepeatCountDown);
             jobSystemConnector.Register(ForceRemoveCountDown);
             countDownSystem.Initilize();
         }
@@ -20,6 +21,10 @@ namespace JobSystem
         private void RegisterCountDown(float totalTime,CountDownSystem.OnCompleted callback)
         {
             countDownSystem.AddCountDown(totalTime, callback);
+        }
+        private void RegisterRepeatCountDown(float totalTime,bool repeat, CountDownSystem.OnCompleted callback)
+        {
+            countDownSystem.AddCountDown(totalTime, repeat, callback);
         }
         private void ForceRemoveCountDown(CountDownSystem.OnCompleted action)
         {
@@ -33,6 +38,7 @@ namespace JobSystem
         {
             countDownSystem.DeInitilize();
             jobSystemConnector.UnRegister(RegisterCountDown);
+            jobSystemConnector.UnRegister(RegisterRepeatCountDown);
             jobSystemConnector.UnRegister(ForceRemoveCountDown);
             jobSystemConnector.Reset();
         }
